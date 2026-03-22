@@ -173,7 +173,7 @@ AlpanCoin is a net positive for BNB Chain in several concrete ways:
 | Website | https://sage-salamander-28977d.netlify.app |
 | AlpanCoin contract | https://bscscan.com/address/0x146a5De5b4F34A9e4203b5D03F5b9CCbd6707224 |
 | PriceOracle contract | https://bscscan.com/address/0x30E23bf1831037E675c1422da358A27F5eF2e0C3 |
-| Whitepaper | https://alpancoin.com/whitepaper |
+| Whitepaper | https://github.com/AlpanCoinDev/alpancoin/blob/main/docs/whitepaper.md |
 | GitHub | https://github.com/AlpanCoinDev/alpancoin |
 
 ---
