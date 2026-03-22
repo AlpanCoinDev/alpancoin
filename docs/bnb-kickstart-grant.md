@@ -59,7 +59,7 @@ Because AlpanCoin is on BNB Chain, the full round-trip (mint + redeem) costs und
 | 50 assets seeded with initial prices | ✅ March 2026 |
 | AlpanCoin (ALP) deployed on BNB Chain Mainnet | ✅ `0x146a5De5b4F34A9e4203b5D03F5b9CCbd6707224` |
 | Web dApp (alpancoin.com) live with MetaMask | ✅ |
-| BscScan verification in progress | 🔄 |
+| BscScan verification in progress | ✅ |
 | Smart contract audit | 📅 Q2 2026 |
 | PancakeSwap liquidity pool | 📅 Q2 2026 |
 
@@ -170,11 +170,11 @@ AlpanCoin is a net positive for BNB Chain in several concrete ways:
 
 | Resource | Link |
 |---|---|
-| Website | https://alpancoin.com |
+| Website | https://sage-salamander-28977d.netlify.app |
 | AlpanCoin contract | https://bscscan.com/address/0x146a5De5b4F34A9e4203b5D03F5b9CCbd6707224 |
 | PriceOracle contract | https://bscscan.com/address/0x30E23bf1831037E675c1422da358A27F5eF2e0C3 |
 | Whitepaper | https://alpancoin.com/whitepaper |
-| GitHub | *(to be made public upon grant approval)* |
+| GitHub | https://github.com/AlpanCoinDev/alpancoin |
 
 ---
 
