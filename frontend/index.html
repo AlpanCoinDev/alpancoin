@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlpanCoin — ALP Index Token</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #0d0f14;
+      --surface:   #161a23;
+      --surface2:  #1e2330;
+      --border:    #2a3045;
+      --accent:    #f0b90b;
+      --accent2:   #e8a800;
+      --green:     #0ecb81;
+      --red:       #f6465d;
+      --text:      #eaecef;
+      --muted:     #848e9c;
+      --radius:    12px;
+      --font:      'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+    html { font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      font-size: .875rem;
+      border: none;
+      border-radius: 8px;
+      transition: opacity .15s, transform .1s;
+    }
+    button:active { transform: scale(.98); }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    input[type="number"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 1rem;
+      padding: .6rem .85rem;
+      width: 100%;
+      outline: none;
+      transition: border-color .15s;
+    }
+    input[type="number"]:focus { border-color: var(--accent); }
+    input[type="number"]::-webkit-inner-spin-button { display: none; }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.25rem; }
+
+    /* ── Header ───────────────────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      gap: 1rem;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 900; color: #000;
+    }
+    .badge-network {
+      background: #1a2230;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: .25rem .75rem;
+      font-size: .75rem;
+      color: var(--muted);
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .badge-network::before {
+      content: ''; display: block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+    #btn-wallet {
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      padding: .5rem 1.2rem;
+    }
+    #btn-wallet:hover { background: var(--accent2); }
+    #btn-wallet.connected {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-weight: 500;
+    }
+    .header-right { display: flex; align-items: center; gap: .75rem; }
+
+    /* ── Stats bar ────────────────────────────────────────── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-card {
+      background: var(--surface);
+      padding: 1rem 1.5rem;
+    }
+    .stat-label {
+      font-size: .72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: .25rem;
+    }
+    .stat-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-sub {
+      font-size: .75rem;
+      color: var(--muted);
+      margin-top: .1rem;
+    }
+    .stat-value.green { color: var(--green); }
+    .stat-value.yellow { color: var(--accent); }
+
+    /* ── Main ─────────────────────────────────────────────── */
+    main { padding: 2rem 0 4rem; }
+
+    /* ── Trade section ────────────────────────────────────── */
+    .trade-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 640px) { .trade-grid { grid-template-columns: 1fr; } }
+
+    .trade-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+    .trade-card h2 {
+      font-size: .85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+    .input-group { margin-bottom: .75rem; }
+    .input-label {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-bottom: .35rem;
+    }
+    .input-wrap { position: relative; }
+    .input-suffix {
+      position: absolute;
+      right: .85rem; top: 50%;
+      transform: translateY(-50%);
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    input[type="number"] { padding-right: 3rem; }
+
+    .max-btn {
+      background: none;
+      color: var(--accent);
+      font-size: .75rem;
+      font-weight: 600;
+      padding: 0;
+      margin-left: .5rem;
+      text-transform: uppercase;
+    }
+    .max-btn:hover { opacity: .75; }
+
+    .preview-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .85rem 1rem;
+      margin: .85rem 0;
+      font-size: .82rem;
+    }
+    .preview-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      margin-bottom: .3rem;
+    }
+    .preview-row:last-child { margin-bottom: 0; }
+    .preview-row span:last-child { color: var(--text); font-weight: 500; }
+    .preview-row.total span { color: var(--accent); font-weight: 700; font-size: .9rem; }
+
+    .btn-trade {
+      width: 100%;
+      padding: .85rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 10px;
+      margin-top: .25rem;
+    }
+    .btn-buy  { background: var(--green); color: #000; }
+    .btn-buy:hover:not(:disabled)  { background: #0ab874; }
+    .btn-sell { background: var(--red);   color: #fff; }
+    .btn-sell:hover:not(:disabled) { background: #e03a50; }
+
+    /* ── Toast / tx status ────────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      bottom: 1.5rem; right: 1.5rem;
+      display: flex; flex-direction: column; gap: .5rem;
+      z-index: 999;
+    }
+    .toast {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem 1.1rem;
+      font-size: .82rem;
+      max-width: 340px;
+      animation: slideIn .2s ease;
+      display: flex; align-items: flex-start; gap: .6rem;
+    }
+    .toast.success { border-color: var(--green); }
+    .toast.error   { border-color: var(--red);   }
+    .toast.pending { border-color: var(--accent); }
+    .toast-icon { font-size: 1rem; flex-shrink: 0; }
+    .toast a { color: var(--accent); }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Assets table ─────────────────────────────────────── */
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .section-title small {
+      font-size: .75rem;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: var(--surface2);
+      font-size: .72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      padding: .75rem 1.1rem;
+      text-align: left;
+    }
+    thead th:nth-child(3),
+    thead th:nth-child(4) { text-align: right; }
+    tbody tr {
+      border-top: 1px solid var(--border);
+      transition: background .1s;
+    }
+    tbody tr:hover { background: var(--surface2); }
+    tbody td {
+      padding: .75rem 1.1rem;
+      font-size: .875rem;
+      font-variant-numeric: tabular-nums;
+    }
+    td.num { text-align: right; }
+    td.rank { color: var(--muted); font-size: .8rem; width: 48px; }
+    .asset-sym { font-weight: 700; }
+    .bar-wrap {
+      width: 120px;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: .5rem;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+    }
+    .inactive-badge {
+      font-size: .68rem;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: .1rem .4rem;
+      margin-left: .5rem;
+    }
+
+    /* ── Loader ───────────────────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 4px;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .skel-text { height: 1em; }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 0;
+      text-align: center;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────── -->
+<header>
+  <div class="container">
+    <div class="header-inner">
+      <div style="display:flex;align-items:center;gap:.85rem">
+        <div class="logo">
+          <div class="logo-icon">A</div>
+          AlpanCoin
+        </div>
+        <div class="badge-network">BNB Smart Chain</div>
+      </div>
+      <div class="header-right">
+        <div id="balance-display" style="display:none;font-size:.85rem;color:var(--muted)">
+          Saldo: <span id="alp-balance" style="color:var(--accent);font-weight:700">—</span> ALP
+        </div>
+        <button id="btn-wallet">Conectar Wallet</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Stats bar ───────────────────────────────────────────── -->
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-label">Precio Índice ALP</div>
+    <div class="stat-value yellow" id="stat-index">—</div>
+    <div class="stat-sub" id="stat-index-sub">Media simple de 50 activos</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">BNB / USD</div>
+    <div class="stat-value" id="stat-bnb">—</div>
+    <div class="stat-sub">Precio de referencia del contrato</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Comisión protocolo</div>
+    <div class="stat-value" id="stat-fee">—</div>
+    <div class="stat-sub">Sobre cada mint / redeem</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Tu saldo ALP</div>
+    <div class="stat-value green" id="stat-balance">—</div>
+    <div class="stat-sub" id="stat-balance-sub">Conecta tu wallet</div>
+  </div>
+</div>
+
+<!-- ── Main ────────────────────────────────────────────────── -->
+<main>
+  <div class="container">
+
+    <!-- Trade cards -->
+    <div class="trade-grid">
+
+      <!-- BUY -->
+      <div class="trade-card">
+        <h2>Comprar ALP</h2>
+        <div class="input-group">
+          <div class="input-label">Cantidad BNB a gastar</div>
+          <div class="input-wrap">
+            <input id="buy-bnb" type="number" min="0.001" step="0.001" placeholder="0.00" />
+            <span class="input-suffix">BNB</span>
+          </div>
+        </div>
+        <div class="preview-box" id="buy-preview">
+          <div class="preview-row">
+            <span>Comisión (0.30%)</span><span id="buy-fee">—</span>
+          </div>
+          <div class="preview-row">
+            <span>BNB neto</span><span id="buy-net">—</span>
+          </div>
+          <div class="preview-row total">
+            <span>Recibirás</span><span id="buy-out">—</span>
+          </div>
+        </div>
+        <button class="btn-trade btn-buy" id="btn-buy" disabled>Conecta tu wallet</button>
+      </div>
+
+      <!-- SELL -->
+      <div class="trade-card">
+        <h2>Vender ALP</h2>
+        <div class="input-group">
+          <div class="input-label">
+            Cantidad ALP a vender
+            <button class="max-btn" id="btn-max" style="display:none">MAX</button>
+          </div>
+          <div class="input-wrap">
+            <input id="sell-alp" type="number" min="0" step="0.001" placeholder="0.00" />
+            <span class="input-suffix">ALP</span>
+          </div>
+        </div>
+        <div class="preview-box" id="sell-preview">
+          <div class="preview-row">
+            <span>Comisión (0.30%)</span><span id="sell-fee">—</span>
+          </div>
+          <div class="preview-row">
+            <span>BNB bruto</span><span id="sell-gross">—</span>
+          </div>
+          <div class="preview-row total">
+            <span>Recibirás</span><span id="sell-out">—</span>
+          </div>
+        </div>
+        <button class="btn-trade btn-sell" id="btn-sell" disabled>Conecta tu wallet</button>
+      </div>
+    </div>
+
+    <!-- Assets table -->
+    <div class="section-title">
+      Componentes del Índice
+      <small id="asset-count-label">cargando…</small>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Activo</th>
+            <th style="text-align:right">Precio (USD)</th>
+            <th style="text-align:right">Peso en índice</th>
+          </tr>
+        </thead>
+        <tbody id="asset-tbody">
+          <!-- skeleton rows -->
+          <tr><td colspan="4" style="padding:2rem;text-align:center;color:var(--muted)">
+            <span class="spinner"></span>&nbsp; Cargando activos…
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</main>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    AlpanCoin (ALP) —
+    <a href="https://bscscan.com/address/0x146a5De5b4F34A9e4203b5D03F5b9CCbd6707224" target="_blank">Contrato ALP</a> ·
+    <a href="https://bscscan.com/address/0x30E23bf1831037E675c1422da358A27F5eF2e0C3" target="_blank">PriceOracle</a>
+  </div>
+</footer>
+
+<!-- ── Toast container ─────────────────────────────────────── -->
+<div id="toast-container"></div>
+
+<!-- ── App ─────────────────────────────────────────────────── -->
+<script>
+'use strict';
+
+// ── Config ────────────────────────────────────────────────────
+const CFG = {
+  ALP_ADDR:    '0x146a5De5b4F34A9e4203b5D03F5b9CCbd6707224',
+  ORACLE_ADDR: '0x30E23bf1831037E675c1422da358A27F5eF2e0C3',
+  BSC_CHAIN_ID: 56n,
+  BSC_CHAIN_HEX: '0x38',
+  BSCSCAN: 'https://bscscan.com',
+};
+
+const ALP_ABI = [
+  'function mint() payable',
+  'function redeem(uint256 alpAmount)',
+  'function balanceOf(address) view returns (uint256)',
+  'function previewMint(uint256 bnbAmount) view returns (uint256 alpAmount, uint256 fee, uint256 indexPrice)',
+  'function previewRedeem(uint256 alpAmount) view returns (uint256 bnbAmount, uint256 fee, uint256 indexPrice)',
+  'function bnbUsdPrice() view returns (uint256)',
+  'function protocolFeeBps() view returns (uint256)',
+];
+
+const ORACLE_ABI = [
+  'function getIndexPrice() view returns (uint256 indexPrice, uint256 updatedAt)',
+  'function getAssetCount() view returns (uint256)',
+  'function getAssetData(uint256 assetId) view returns (string symbol, uint256 price, uint256 updatedAt, bool active)',
+];
+
+// ── State ─────────────────────────────────────────────────────
+let provider, signer, alpContract, oracleContract;
+let userAddress = null;
+let alpBalance  = 0n;
+let assets      = [];
+let refreshTimer = null;
+
+// ── DOM refs ──────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const btnWallet    = $('btn-wallet');
+const btnBuy       = $('btn-buy');
+const btnSell      = $('btn-sell');
+const btnMax       = $('btn-max');
+const inputBuyBnb  = $('buy-bnb');
+const inputSellAlp = $('sell-alp');
+
+// ── Helpers ───────────────────────────────────────────────────
+const fmt = (n, dec = 2) =>
+  Number(n).toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+
+const fmtPrice = val => {
+  if (val >= 1000)  return '$' + fmt(val, 2);
+  if (val >= 1)     return '$' + fmt(val, 4);
+  if (val >= 0.001) return '$' + fmt(val, 6);
+  return '$' + val.toFixed(8);
+};
+
+function shortAddr(addr) {
+  return addr.slice(0, 6) + '…' + addr.slice(-4);
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function toast(msg, type = 'info', duration = 5000) {
+  const icons = { success: '✅', error: '❌', pending: '⏳', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span class="toast-icon">${icons[type] || ''}</span><span>${msg}</span>`;
+  $('toast-container').appendChild(el);
+  if (duration > 0) setTimeout(() => el.remove(), duration);
+  return el;
+}
+
+// ── Network check / switch ────────────────────────────────────
+async function ensureBSC() {
+  const network = await provider.getNetwork();
+  if (network.chainId !== CFG.BSC_CHAIN_ID) {
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: CFG.BSC_CHAIN_HEX }],
+      });
+    } catch (e) {
+      if (e.code === 4902) {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: CFG.BSC_CHAIN_HEX,
+            chainName: 'BNB Smart Chain',
+            nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+            rpcUrls: ['https://bsc-dataseed.binance.org/'],
+            blockExplorerUrls: ['https://bscscan.com/'],
+          }],
+        });
+      } else throw e;
+    }
+    // reload provider after switch
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer   = await provider.getSigner();
+    initContracts();
+  }
+}
+
+// ── Contracts ─────────────────────────────────────────────────
+function initContracts() {
+  const p = signer ?? provider;
+  alpContract    = new ethers.Contract(CFG.ALP_ADDR,    ALP_ABI,    p);
+  oracleContract = new ethers.Contract(CFG.ORACLE_ADDR, ORACLE_ABI, p);
+}
+
+// ── Connect wallet ────────────────────────────────────────────
+async function connectWallet() {
+  if (!window.ethereum) {
+    toast('MetaMask no detectado. Instálalo en <a href="https://metamask.io" target="_blank">metamask.io</a>.', 'error', 0);
+    return;
+  }
+  try {
+    btnWallet.disabled = true;
+    btnWallet.textContent = 'Conectando…';
+
+    provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send('eth_requestAccounts', []);
+    signer      = await provider.getSigner();
+    userAddress = await signer.getAddress();
+
+    await ensureBSC();
+    initContracts();
+
+    // UI
+    btnWallet.textContent = shortAddr(userAddress);
+    btnWallet.classList.add('connected');
+    $('balance-display').style.display = 'flex';
+    $('balance-display').style.alignItems = 'center';
+    $('balance-display').style.gap = '.4rem';
+    btnBuy.disabled  = false;
+    btnBuy.textContent  = 'Comprar ALP';
+    btnSell.disabled = false;
+    btnSell.textContent = 'Vender ALP';
+    btnMax.style.display = 'inline';
+
+    await refreshAll();
+    startAutoRefresh();
+    toast(`Wallet conectada: ${shortAddr(userAddress)}`, 'success');
+
+  } catch (e) {
+    toast('Error conectando: ' + (e.message ?? e), 'error');
+    btnWallet.textContent = 'Conectar Wallet';
+  } finally {
+    btnWallet.disabled = false;
+  }
+}
+
+// ── Load stats ────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const [indexData, bnbPrice, feeBps] = await Promise.all([
+      oracleContract.getIndexPrice(),
+      alpContract.bnbUsdPrice(),
+      alpContract.protocolFeeBps(),
+    ]);
+
+    const indexUsd = Number(indexData[0]) / 1e8;
+    const bnbUsd   = Number(bnbPrice)     / 1e8;
+    const feeStr   = (Number(feeBps) / 100).toFixed(2) + '%';
+
+    $('stat-index').textContent = fmtPrice(indexUsd);
+    $('stat-bnb').textContent   = fmtPrice(bnbUsd);
+    $('stat-fee').textContent   = feeStr;
+
+    const updatedAt = Number(indexData[1]);
+    if (updatedAt > 0) {
+      const ago = Math.round((Date.now() / 1000) - updatedAt);
+      $('stat-index-sub').textContent = `Actualizado hace ${ago < 60 ? ago + 's' : Math.round(ago/60) + 'min'}`;
+    }
+  } catch (e) {
+    console.error('loadStats:', e);
+  }
+}
+
+// ── Load user balance ─────────────────────────────────────────
+async function loadBalance() {
+  if (!userAddress) return;
+  try {
+    alpBalance = await alpContract.balanceOf(userAddress);
+    const formatted = fmt(Number(ethers.formatEther(alpBalance)), 4);
+    $('alp-balance').textContent      = formatted;
+    $('stat-balance').textContent     = formatted;
+    $('stat-balance-sub').textContent = shortAddr(userAddress);
+  } catch (e) {
+    console.error('loadBalance:', e);
+  }
+}
+
+// ── Load assets ───────────────────────────────────────────────
+async function loadAssets() {
+  try {
+    const count = Number(await oracleContract.getAssetCount());
+    $('asset-count-label').textContent = `${count} activos`;
+
+    // Fetch all in parallel (batched to avoid provider limits)
+    const BATCH = 10;
+    const results = [];
+    for (let i = 0; i < count; i += BATCH) {
+      const batch = [];
+      for (let j = i; j < Math.min(i + BATCH, count); j++) {
+        batch.push(oracleContract.getAssetData(j).then(d => ({
+          id: j,
+          symbol:    d[0],
+          price:     Number(d[1]) / 1e8,
+          updatedAt: Number(d[2]),
+          active:    d[3],
+        })));
+      }
+      results.push(...await Promise.all(batch));
+    }
+    assets = results;
+
+    const totalPrice = assets.filter(a => a.active && a.price > 0).reduce((s, a) => s + a.price, 0);
+    renderAssets(totalPrice);
+  } catch (e) {
+    console.error('loadAssets:', e);
+  }
+}
+
+function renderAssets(totalPrice) {
+  const tbody = $('asset-tbody');
+  tbody.innerHTML = '';
+
+  assets.forEach((a, i) => {
+    const weight  = totalPrice > 0 ? (a.price / totalPrice) * 100 : 0;
+    const barWidth = Math.min(weight * 5, 100); // scale for visual
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="rank">${i + 1}</td>
+      <td>
+        <span class="asset-sym">${a.symbol}</span>
+        ${!a.active ? '<span class="inactive-badge">inactivo</span>' : ''}
+      </td>
+      <td class="num">${a.price > 0 ? fmtPrice(a.price) : '<span style="color:var(--muted)">—</span>'}</td>
+      <td class="num">
+        ${a.active && a.price > 0
+          ? `${weight.toFixed(2)}% <span class="bar-wrap"><span class="bar-fill" style="width:${barWidth}%"></span></span>`
+          : '<span style="color:var(--muted)">—</span>'}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Preview mint ──────────────────────────────────────────────
+async function updateBuyPreview() {
+  const val = parseFloat(inputBuyBnb.value);
+  if (!val || val <= 0 || !alpContract) {
+    $('buy-fee').textContent = '—';
+    $('buy-net').textContent = '—';
+    $('buy-out').textContent = '—';
+    return;
+  }
+  try {
+    const bnbWei = ethers.parseEther(String(val));
+    const [alpOut, fee] = await alpContract.previewMint(bnbWei);
+    $('buy-fee').textContent = fmt(Number(ethers.formatEther(fee)), 6) + ' BNB';
+    $('buy-net').textContent = fmt(val - Number(ethers.formatEther(fee)), 6) + ' BNB';
+    $('buy-out').textContent = fmt(Number(ethers.formatEther(alpOut)), 4) + ' ALP';
+  } catch (e) {
+    $('buy-out').textContent = 'Error de preview';
+  }
+}
+
+// ── Preview redeem ────────────────────────────────────────────
+async function updateSellPreview() {
+  const val = parseFloat(inputSellAlp.value);
+  if (!val || val <= 0 || !alpContract) {
+    $('sell-fee').textContent   = '—';
+    $('sell-gross').textContent = '—';
+    $('sell-out').textContent   = '—';
+    return;
+  }
+  try {
+    const alpWei = ethers.parseEther(String(val));
+    const [bnbOut, fee] = await alpContract.previewRedeem(alpWei);
+    const gross = bnbOut + fee;
+    $('sell-fee').textContent   = fmt(Number(ethers.formatEther(fee)),   6) + ' BNB';
+    $('sell-gross').textContent = fmt(Number(ethers.formatEther(gross)), 6) + ' BNB';
+    $('sell-out').textContent   = fmt(Number(ethers.formatEther(bnbOut)),6) + ' BNB';
+  } catch (e) {
+    $('sell-out').textContent = 'Error de preview';
+  }
+}
+
+// ── Buy (mint) ────────────────────────────────────────────────
+async function doBuy() {
+  if (!signer) return;
+  const val = parseFloat(inputBuyBnb.value);
+  if (!val || val < 0.001) {
+    toast('Mínimo 0.001 BNB', 'error');
+    return;
+  }
+  try {
+    btnBuy.disabled = true;
+    btnBuy.innerHTML = '<span class="spinner"></span> Enviando…';
+    await ensureBSC();
+
+    const bnbWei = ethers.parseEther(String(val));
+    const tx = await alpContract.connect(signer).mint({ value: bnbWei });
+    const t = toast(`Tx enviada — <a href="${CFG.BSCSCAN}/tx/${tx.hash}" target="_blank">ver en BscScan</a>`, 'pending', 0);
+
+    const receipt = await tx.wait();
+    t.remove();
+
+    if (receipt.status === 1) {
+      toast(`¡Compra completada! <a href="${CFG.BSCSCAN}/tx/${tx.hash}" target="_blank">Ver Tx</a>`, 'success');
+      inputBuyBnb.value = '';
+      await Promise.all([loadBalance(), updateBuyPreview()]);
+    } else {
+      toast('La transacción falló on-chain.', 'error');
+    }
+  } catch (e) {
+    const msg = e?.reason ?? e?.shortMessage ?? e?.message ?? 'Error desconocido';
+    toast('Error: ' + msg, 'error');
+  } finally {
+    btnBuy.disabled = false;
+    btnBuy.textContent = 'Comprar ALP';
+  }
+}
+
+// ── Sell (redeem) ─────────────────────────────────────────────
+async function doSell() {
+  if (!signer) return;
+  const val = parseFloat(inputSellAlp.value);
+  if (!val || val <= 0) {
+    toast('Introduce una cantidad de ALP válida', 'error');
+    return;
+  }
+  const alpWei = ethers.parseEther(String(val));
+  if (alpWei > alpBalance) {
+    toast('Saldo ALP insuficiente', 'error');
+    return;
+  }
+  try {
+    btnSell.disabled = true;
+    btnSell.innerHTML = '<span class="spinner"></span> Enviando…';
+    await ensureBSC();
+
+    const tx = await alpContract.connect(signer).redeem(alpWei);
+    const t = toast(`Tx enviada — <a href="${CFG.BSCSCAN}/tx/${tx.hash}" target="_blank">ver en BscScan</a>`, 'pending', 0);
+
+    const receipt = await tx.wait();
+    t.remove();
+
+    if (receipt.status === 1) {
+      toast(`¡Venta completada! <a href="${CFG.BSCSCAN}/tx/${tx.hash}" target="_blank">Ver Tx</a>`, 'success');
+      inputSellAlp.value = '';
+      await Promise.all([loadBalance(), updateSellPreview()]);
+    } else {
+      toast('La transacción falló on-chain.', 'error');
+    }
+  } catch (e) {
+    const msg = e?.reason ?? e?.shortMessage ?? e?.message ?? 'Error desconocido';
+    toast('Error: ' + msg, 'error');
+  } finally {
+    btnSell.disabled = false;
+    btnSell.textContent = 'Vender ALP';
+  }
+}
+
+// ── Refresh ───────────────────────────────────────────────────
+async function refreshAll() {
+  await Promise.all([loadStats(), loadBalance(), loadAssets()]);
+}
+
+function startAutoRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(async () => {
+    await loadStats();
+    await loadBalance();
+    // assets refresh every 5 cycles (~5min)
+    if (Math.random() < .2) await loadAssets();
+  }, 60_000);
+}
+
+// ── Read-only bootstrap (no wallet needed) ────────────────────
+async function initReadOnly() {
+  try {
+    provider = new ethers.JsonRpcProvider('https://bsc-dataseed.binance.org/');
+    initContracts();
+    await Promise.all([loadStats(), loadAssets()]);
+  } catch (e) {
+    console.error('initReadOnly:', e);
+  }
+}
+
+// ── Event listeners ───────────────────────────────────────────
+btnWallet.addEventListener('click', connectWallet);
+btnBuy.addEventListener('click', doBuy);
+btnSell.addEventListener('click', doSell);
+
+btnMax.addEventListener('click', () => {
+  if (alpBalance > 0n) {
+    inputSellAlp.value = ethers.formatEther(alpBalance);
+    updateSellPreview();
+  }
+});
+
+inputBuyBnb.addEventListener('input', updateBuyPreview);
+inputSellAlp.addEventListener('input', updateSellPreview);
+
+// MetaMask events
+if (window.ethereum) {
+  window.ethereum.on('accountsChanged', accs => {
+    if (accs.length === 0) location.reload();
+    else { userAddress = accs[0]; loadBalance(); }
+  });
+  window.ethereum.on('chainChanged', () => location.reload());
+}
+
+// ── Init ──────────────────────────────────────────────────────
+initReadOnly();
+</script>
+</body>
+</html>

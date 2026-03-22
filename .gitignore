@@ -1,0 +1,17 @@
+node_modules/
+artifacts/
+cache/
+coverage/
+coverage.json
+typechain-types/
+deployment.json
+
+# Environment
+.env
+
+# Generated verification files
+standard-json-*.json
+
+# OS
+.DS_Store
+Thumbs.db

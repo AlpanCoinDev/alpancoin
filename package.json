@@ -1,0 +1,32 @@
+{
+  "name": "alpancoin",
+  "version": "1.0.0",
+  "description": "AlpanCoin — ERC-20 index token tracking the top-50 cryptocurrencies by market cap",
+  "main": "index.js",
+  "scripts": {
+    "compile":        "hardhat compile",
+    "test":           "hardhat test",
+    "test:gas":       "REPORT_GAS=true hardhat test",
+    "coverage":       "hardhat coverage",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network bscMainnet",
+    "deploy:alpancoin": "hardhat run scripts/deployAlpanCoin.js --network bscMainnet",
+    "deploy:testnet": "hardhat run scripts/deploy.js --network bscTestnet",
+    "deploy:local":   "hardhat run scripts/deploy.js --network localhost",
+    "node":           "hardhat node",
+    "prices:update":          "hardhat run scripts/updatePrices.js --network bscMainnet",
+    "prices:update:testnet":  "hardhat run scripts/updatePrices.js --network bscTestnet",
+    "verify":         "hardhat verify"
+  },
+  "keywords": ["blockchain", "erc20", "defi", "index-token", "bnb-chain"],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.1.0"
+  }
+}
