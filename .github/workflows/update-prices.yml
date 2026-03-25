@@ -1,0 +1,46 @@
+name: Update Oracle Prices
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # every hour at :00
+  workflow_dispatch:        # allow manual trigger from GitHub Actions UI
+
+concurrency:
+  group: prices-update
+  cancel-in-progress: false  # never cancel a running update mid-tx
+
+jobs:
+  update:
+    name: Keeper — push prices to BNB Chain
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run prices:update
+        env:
+          BSC_MAINNET_RPC_URL:  ${{ secrets.BSC_MAINNET_RPC_URL }}
+          PRIVATE_KEY:          ${{ secrets.PRIVATE_KEY }}
+          COINGECKO_API_KEY:    ${{ secrets.COINGECKO_API_KEY }}
+          BSCSCAN_API_KEY:      ${{ secrets.BSCSCAN_API_KEY }}
+        run: npm run prices:update
+
+      - name: Upload run log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prices-log-${{ github.run_number }}
+          path: |
+            deployment.json
+          retention-days: 7
