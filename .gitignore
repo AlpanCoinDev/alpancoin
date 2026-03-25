@@ -4,7 +4,6 @@ cache/
 coverage/
 coverage.json
 typechain-types/
-deployment.json
 
 # Environment
 .env

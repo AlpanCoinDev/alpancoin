@@ -1,0 +1,9 @@
+{
+  "network": "bscMainnet",
+  "oracleAddr": "0x1d1351B4B2E7C1FD265d1c53b0f35c046063d938",
+  "oldOracleAddr": "0x30E23bf1831037E675c1422da358A27F5eF2e0C3",
+  "alpAddr": "0x146a5De5b4F34A9e4203b5D03F5b9CCbd6707224",
+  "bnbUsdPrice": "60000000000",
+  "deployedAt": "2026-03-21T14:43:38.698Z",
+  "chainlinkMigratedAt": "2026-03-24T16:21:00.000Z"
+}
