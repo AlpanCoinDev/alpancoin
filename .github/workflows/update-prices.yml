@@ -2,7 +2,7 @@ name: Update Oracle Prices
 
 on:
   schedule:
-    - cron: '0 * * * *'   # every hour at :00
+    - cron: '*/5 * * * *'  # every 5 minutes
   workflow_dispatch:        # allow manual trigger from GitHub Actions UI
 
 concurrency:
