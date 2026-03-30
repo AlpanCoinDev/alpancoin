@@ -370,6 +370,53 @@
 </head>
 <body>
 
+<!-- ── Password gate ───────────────────────────────────────── -->
+<div id="pw-gate" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;flex-direction:column">
+  <div style="text-align:center;max-width:360px;padding:0 1.25rem">
+    <div style="display:flex;align-items:center;justify-content:center;gap:.6rem;margin-bottom:2rem">
+      <div class="logo-icon">A</div>
+      <span style="font-size:1.4rem;font-weight:700">AlpanCoin</span>
+    </div>
+    <p style="color:var(--muted);margin-bottom:1.5rem;font-size:.9rem">Introduce la contrase&ntilde;a para acceder</p>
+    <form id="pw-form" autocomplete="off" style="display:flex;flex-direction:column;gap:.75rem">
+      <input id="pw-input" type="password" placeholder="Contrase&ntilde;a"
+        style="background:var(--surface);border:1px solid var(--border);border-radius:8px;
+        color:var(--text);font-family:inherit;font-size:1rem;padding:.7rem .85rem;outline:none;width:100%" />
+      <button type="submit"
+        style="background:var(--accent);color:#000;font-weight:700;padding:.75rem;
+        border-radius:8px;font-size:1rem;border:none;cursor:pointer;font-family:inherit">Entrar</button>
+      <p id="pw-error" style="color:var(--red);font-size:.82rem;display:none">Contrase&ntilde;a incorrecta</p>
+    </form>
+  </div>
+</div>
+<script>
+(function(){
+  var HASH='9576bd9bf463d08e6cde6e60937a653d2838978bf8aee8129e1684c9b888da05';
+  var KEY='alp_auth';
+  var gate=document.getElementById('pw-gate');
+  var app=document.getElementById('pw-gate');
+  if(localStorage.getItem(KEY)==='1'){gate.style.display='none';return;}
+  gate.style.display='flex';
+  document.querySelectorAll('header,main,.stats-bar,footer,#toast-container').forEach(function(e){e.style.display='none';});
+  document.getElementById('pw-form').addEventListener('submit',async function(e){
+    e.preventDefault();
+    var pw=document.getElementById('pw-input').value;
+    var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw));
+    var hex=Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+    if(hex===HASH){
+      localStorage.setItem(KEY,'1');
+      gate.style.display='none';
+      document.querySelectorAll('header,main,.stats-bar,footer,#toast-container').forEach(function(e){e.style.display='';});
+    }else{
+      document.getElementById('pw-error').style.display='block';
+      document.getElementById('pw-input').value='';
+      document.getElementById('pw-input').focus();
+    }
+  });
+})();
+</script>
+
 <!-- ── Header ──────────────────────────────────────────────── -->
 <header>
   <div class="container">
