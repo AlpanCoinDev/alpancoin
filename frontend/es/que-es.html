@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlpanCoin &mdash; &iquest;Qu&eacute; es?</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0f14; --surface: #161a23; --surface2: #1e2330;
+      --border: #2a3045; --accent: #f0b90b; --accent2: #e8a800;
+      --green: #0ecb81; --red: #f6465d; --text: #eaecef;
+      --muted: #848e9c; --radius: 12px;
+      --font: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    }
+    html { font-size: 16px; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; line-height: 1.6; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 1.25rem;
+      display: flex; align-items: center; justify-content: space-between; height: 64px;
+    }
+    .logo { display: flex; align-items: center; gap: .6rem; font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .logo-icon {
+      width: 34px; height: 34px; background: var(--accent); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 900; color: #000;
+    }
+    .nav-links { display: flex; gap: 1.5rem; font-size: .9rem; }
+    .nav-links a { color: var(--muted); }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); text-decoration: none; }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 0 1.25rem; }
+
+    .hero {
+      text-align: center; padding: 3.5rem 0 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero h1 { font-size: 2.2rem; margin-bottom: .5rem; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { color: var(--muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+    .content { padding: 2.5rem 0 4rem; }
+    .content h2 {
+      font-size: 1.25rem; font-weight: 700; margin: 2rem 0 .75rem;
+      padding-bottom: .5rem; border-bottom: 1px solid var(--border);
+    }
+    .content h2:first-child { margin-top: 0; }
+    .content p, .content li { color: var(--text); font-size: .95rem; margin-bottom: .75rem; }
+    .content ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+    .content li { margin-bottom: .4rem; }
+
+    .card-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
+    @media (max-width: 640px) { .card-grid { grid-template-columns: 1fr; } }
+    .info-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .info-card .ic-title { font-weight: 700; margin-bottom: .4rem; font-size: .95rem; }
+    .info-card .ic-body { color: var(--muted); font-size: .85rem; }
+
+    .highlight-box {
+      background: var(--surface); border-left: 3px solid var(--accent);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.25rem; margin: 1.25rem 0;
+    }
+    .highlight-box p { margin-bottom: 0; }
+
+    .cta-row { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+    .btn-cta {
+      display: inline-block; padding: .75rem 1.5rem; border-radius: 8px;
+      font-weight: 700; font-size: .95rem; text-decoration: none;
+    }
+    .btn-cta:hover { text-decoration: none; opacity: .9; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+
+    footer {
+      border-top: 1px solid var(--border); padding: 1.5rem 0;
+      text-align: center; font-size: .78rem; color: var(--muted);
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo" style="text-decoration:none">
+      <div class="logo-icon">A</div>
+      AlpanCoin
+    </a>
+    <nav class="nav-links">
+      <a href="/es/que-es" class="active">Qu&eacute; es</a>
+      <a href="/es/como-funciona">C&oacute;mo funciona</a>
+      <a href="/en/what-is">English</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+  <div class="hero">
+    <h1><span>AlpanCoin</span> &mdash; &iquest;Qu&eacute; es?</h1>
+    <p>Un token &iacute;ndice que refleja el precio medio de las 50 criptomonedas con mayor capitalizaci&oacute;n de mercado.</p>
+  </div>
+
+  <div class="content">
+
+    <h2>El concepto</h2>
+    <p>AlpanCoin (ALP) es un token ERC-20 en BNB Smart Chain que funciona como un fondo &iacute;ndice descentralizado. En lugar de comprar 50 criptomonedas por separado, con ALP obtienes exposici&oacute;n a todas ellas en un solo token.</p>
+
+    <div class="highlight-box">
+      <p><strong>Precio &iacute;ndice ALP</strong> = media simple del precio USD de los 50 activos del &iacute;ndice. Los precios se actualizan mediante Chainlink Price Feeds (on-chain, en tiempo real) y un keeper automatizado.</p>
+    </div>
+
+    <h2>Componentes del &iacute;ndice</h2>
+    <p>El &iacute;ndice incluye los 50 activos con mayor capitalizaci&oacute;n: BTC, ETH, BNB, SOL, XRP, DOGE, ADA, AVAX, LINK, DOT, y 40 m&aacute;s. La lista completa y los precios en tiempo real est&aacute;n visibles en la <a href="/">p&aacute;gina principal</a>.</p>
+
+    <div class="card-grid">
+      <div class="info-card">
+        <div class="ic-title">50 activos</div>
+        <div class="ic-body">Las criptomonedas con mayor capitalizaci&oacute;n, ponderadas por igual.</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">Precios Chainlink</div>
+        <div class="ic-body">15 feeds on-chain con datos verificados por or&aacute;culos descentralizados.</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-title">BNB Smart Chain</div>
+        <div class="ic-body">Transacciones r&aacute;pidas y con comisiones muy bajas.</div>
+      </div>
+    </div>
+
+    <h2>Caracter&iacute;sticas principales</h2>
+    <ul>
+      <li><strong>Mint:</strong> env&iacute;a BNB y recibe ALP al precio &iacute;ndice actual.</li>
+      <li><strong>Redeem:</strong> quema ALP y recupera BNB proporcional al valor del &iacute;ndice.</li>
+      <li><strong>Comisi&oacute;n:</strong> 0,30% por operaci&oacute;n (mint y redeem).</li>
+      <li><strong>Supply m&aacute;ximo:</strong> 21.000.000 ALP.</li>
+      <li><strong>Sin custodia:</strong> los contratos son p&uacute;blicos y verificables en BscScan.</li>
+    </ul>
+
+    <h2>Contratos verificados</h2>
+    <ul>
+      <li><a href="https://bscscan.com/address/0x146a5De5b4F34A9e4203b5D03F5b9CCbd6707224" target="_blank">AlpanCoin (ALP)</a> &mdash; token ERC-20</li>
+      <li><a href="https://bscscan.com/address/0x1d1351B4B2E7C1FD265d1c53b0f35c046063d938" target="_blank">PriceOracle</a> &mdash; or&aacute;culo de precios con Chainlink</li>
+    </ul>
+
+    <div class="cta-row">
+      <a href="/" class="btn-cta btn-primary">Abrir App</a>
+      <a href="/es/como-funciona" class="btn-cta btn-secondary">C&oacute;mo comprar y vender</a>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    AlpanCoin (ALP) &mdash;
+    <a href="https://bscscan.com/address/0x146a5De5b4F34A9e4203b5D03F5b9CCbd6707224" target="_blank">Contrato ALP</a> &middot;
+    <a href="https://bscscan.com/address/0x1d1351B4B2E7C1FD265d1c53b0f35c046063d938" target="_blank">PriceOracle</a>
+  </div>
+</footer>
+
+</body>
+</html>
